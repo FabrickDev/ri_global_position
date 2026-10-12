@@ -29,6 +29,7 @@ class fab_global_position(Node):
         self.Vel_WL = Float64()
         self.Vel_WR = Float64()
 
+        # Gathering Data From input_ik and Wheels
         self.create_subscription(
             Twist,
             '/input_ik',
