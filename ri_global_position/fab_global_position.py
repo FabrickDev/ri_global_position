@@ -12,6 +12,9 @@ class fab_global_position(Node):
     def __init__(self):
         super().__init__('fab_global_position')
 
+        # Enable this for More Debug Info (Wheel Speed, Linear Speed, Angular Speed, DT, PosX, PosY, Tetha)
+        self.ShowMoreDebugInfo = False
+
         self.wheel_radius = 0.03
         self.wheel_separation = 0.17
 
@@ -52,21 +55,23 @@ class fab_global_position(Node):
         #self.create_timer(0.1, self.publish_sheels)
 
         self.get_logger().info(
-            f'Activeeeee'
+            f'ri_global_position/fab_global_position.py is running...'
         )
 
     def LeftWheelCallback(self, msg):
         self.Vel_WL.data = msg.data
-        self.get_logger().info(
-            f'Left Wheel Velocity: {self.Vel_WL.data} | Right Wheel Velocity: {self.Vel_WR}'
-        )
+        if self.ShowMoreDebugInfo:
+            self.get_logger().info(
+                f'Left Wheel Velocity: {self.Vel_WL.data} | Right Wheel Velocity: {self.Vel_WR}'
+            )
         
 
     def RightWheelCallback(self, msg):
         self.Vel_WR.data = msg.data
-        self.get_logger().info(
-            f'Right Wheel Velocity: {self.Vel_WR.data} | Left Wheel Velocity: {self.Vel_WL}'
-        )
+        if self.ShowMoreDebugInfo:
+            self.get_logger().info(
+                f'Right Wheel Velocity: {self.Vel_WR.data} | Left Wheel Velocity: {self.Vel_WL}'
+            )
 
     def global_position_calculation(self, msg):
 
@@ -77,30 +82,35 @@ class fab_global_position(Node):
         if self.CurrentTime == 0:
             return
 
-        # Bahan Tempur
-        # self.Vel = msg.linear.x
-        # self.Omega = msg.angular.z
-
-        # Linear Speedddddddd
+        # Speed Calculations
         ThisLinearSpeed = (self.Vel_WL.data + self.Vel_WR.data) * (self.wheel_radius / 2)
-        self.get_logger().info(
-            f'[LOGGER] Linear Speed: {ThisLinearSpeed} m/s'
-        )
-        self.get_logger().info(
-            f'[LOGGER] Angular: {msg.angular.z} rad/s'
-        )
+        ThisAngularSpeed = msg.angular.z
 
-        ThisXDot = ThisLinearSpeed * math.cos(msg.angular.z)
-        ThisYDot = ThisLinearSpeed * math.sin(msg.angular.z)
+        if self.ShowMoreDebugInfo:
+            self.get_logger().info(
+                f'[LOGGER] Linear Speed: {ThisLinearSpeed} m/s'
+            )
+            self.get_logger().info(
+                f'[LOGGER] Angular: {msg.angular.z} rad/s'
+            )
+
+        ThisXDot = ThisLinearSpeed * math.cos(self.Tetha)
+        ThisYDot = ThisLinearSpeed * math.sin(self.Tetha)
 
         self.PosX += ThisXDot * self.DT
         self.PosY += ThisYDot * self.DT
-        self.Tetha += msg.angular.z * self.DT
+        self.Tetha += ThisAngularSpeed * self.DT
+        self.Tetha = math.atan2(math.sin(self.Tetha), math.cos(self.Tetha)) # Normalize
+
+        formatDT = "{:.2f}".format(self.DT)
+        formatPosX = "{:.2f}".format(self.PosX)
+        formatPosY = "{:.2f}".format(self.PosY)
+        formatTetha = "{:.2f}".format(self.Tetha)
 
         self.get_logger().info(
-            f'[LOGGER] DT: {self.DT}: '
-            f'PosX: {self.PosX}, PosY: {self.PosY} '
-            f'θ: {self.Tetha}'
+            f'[LOGGER] DT: {formatDT}: '
+            f'PosX: {formatPosX}, PosY: {formatPosY} '
+            f'Tetha: {formatTetha}'
         )
 
 def main(args=None):
