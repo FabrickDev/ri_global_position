@@ -32,7 +32,7 @@ class fab_global_position(Node):
         self.create_subscription(
             Twist,
             '/input_ik',
-            self.expensive_calculation_bruh,
+            self.global_position_calculation,
             10
         )
         self.create_subscription(
@@ -67,7 +67,7 @@ class fab_global_position(Node):
             f'Right Wheel Velocity: {self.Vel_WR.data} | Left Wheel Velocity: {self.Vel_WL}'
         )
 
-    def expensive_calculation_bruh(self, msg):
+    def global_position_calculation(self, msg):
 
         self.PrevTime = self.CurrentTime
         self.CurrentTime = self.get_clock().now().nanoseconds * 1e-9
