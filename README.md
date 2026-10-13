@@ -16,7 +16,7 @@ The primary focus of this package is **Global Coordinate Velocity**, which trans
 - [Usage](#usage)
 - [Debugging](#debugging)
 - [Limitations](#limitations)
-- [License](#license)
+- [Author](#author)
 
 ## Overview
 
