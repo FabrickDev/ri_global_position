@@ -7,6 +7,7 @@ The primary focus of this package is **Global Coordinate Velocity**, which trans
 ## Table of Contents
 
 - [Overview](#overview)
+- [Installation](#installation)
 - [Usage](#usage)
 - [Reference Images](#reference-images)
 - [Features](#features)
@@ -28,6 +29,144 @@ This package provides two ROS 2 nodes:
 | Get Velocity Global Coordinate | `vel_global_position` | Calculates the robot's linear velocity components along the global X and Y axes. |
 
 Both nodes use wheel velocity information and the robot's motion data to estimate its movement relative to a global reference frame.
+
+## Installation
+
+### Prerequisites
+
+Before installing this package, make sure the following tools are available:
+
+- Ubuntu Linux with ROS 2 installed and configured.
+- Git for cloning the repositories.
+- `colcon` for building ROS 2 packages.
+
+Install the required build tools if they are not already available:
+
+```bash
+sudo apt update
+sudo apt install git python3-colcon-common-extensions
+```
+
+### 1. Create a ROS 2 Workspace
+
+Create a workspace directory and its `src` folder:
+
+```bash
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+```
+
+### 2. Clone the Required Repositories
+
+Clone all four repositories into the workspace's `src` directory:
+
+**Global Position & Global Coordinate Velocity**
+```bash
+git clone https://github.com/FabrickDev/ri_global_position.git
+```
+
+**Forward and Inverse Kinematics**
+```bash
+git clone https://github.com/FabrickDev/ri_fk_ik.git
+```
+
+**Robot Bringup**
+```bash
+git clone https://github.com/Bakso14/robin_bringup.git
+```
+
+**Robot Description**
+```bash
+git clone https://github.com/Bakso14/robin_description.git
+```
+
+The workspace structure should resemble the following:
+
+```text
+ros2_ws/
+└── src/
+    ├── ri_global_position/
+    ├── ri_fk_ik/
+    ├── robin_bringup/
+    └── robin_description/
+```
+
+### 3. Build the Workspace
+
+Source your installed ROS 2 distribution. Replace `<ros_distro>` with the distribution you use, such as `jazzy`.
+
+```bash
+source /opt/ros/<ros_distro>/setup.bash
+```
+
+Return to the workspace root:
+
+```bash
+cd ~/ros2_ws
+```
+
+Build all packages:
+
+```bash
+colcon build --symlink-install
+```
+
+### 4. Source the Workspace
+
+After the build completes successfully, source the workspace:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+To make the workspace available automatically in new Bash terminals, add the following line to `~/.bashrc`:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Restart the terminal or reload the configuration:
+
+```bash
+source ~/.bashrc
+```
+
+### 5. Verify the Installation
+
+Check whether ROS 2 recognizes the global position package:
+
+```bash
+ros2 pkg list | grep ri_global_position
+```
+
+Check the available executables:
+
+```bash
+ros2 pkg executables ri_global_position
+```
+
+The package should provide the following executables:
+
+- `global_position`
+- `vel_global_position`
+
+### 6. Run the Nodes
+
+**Get Global Position**
+
+```bash
+ros2 run ri_global_position global_position
+```
+
+**Get Velocity Global Coordinate**
+
+```bash
+ros2 run ri_global_position vel_global_position
+```
+
+Run each command in a separate terminal after sourcing the ROS 2 environment and workspace.
+
+For robot integration, ensure that the required input topics are being published and that the robot bringup and kinematics components are configured correctly.
 
 ## Usage
 
