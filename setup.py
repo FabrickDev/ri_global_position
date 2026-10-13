@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='faqisna-pm',
-    maintainer_email='faqisna.pm@gmail.comm',
+    maintainer_email='faqisna.pm@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={
@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'global_position = ri_global_position.fab_global_position:main'
+            'global_position = ri_global_position.fab_global_position:main',
+            'vel_global_position = ri_global_position.fab_vel_global_position:main'
         ],
     },
 )
