@@ -7,13 +7,13 @@ The primary focus of this package is **Global Coordinate Velocity**, which trans
 ## Table of Contents
 
 - [Overview](#overview)
+- [Usage](#usage)
 - [Reference Images](#reference-images)
 - [Features](#features)
 - [Global Coordinate Velocity](#global-coordinate-velocity)
 - [Mathematical Model](#mathematical-model)
 - [ROS 2 Topics](#ros-2-topics)
 - [Installation](#installation)
-- [Usage](#usage)
 - [Debugging](#debugging)
 - [Limitations](#limitations)
 - [Author](#author)
@@ -29,17 +29,52 @@ This package provides two ROS 2 nodes:
 
 Both nodes use wheel velocity information and the robot's motion data to estimate its movement relative to a global reference frame.
 
+## Usage
+
+### 1. Get Global Position
+
+Run the global position estimation node:
+
+```bash
+ros2 run ri_global_position global_position
+```
+
+This node estimates the robot's global position (`PosX`, `PosY`) and heading (`Tetha`) through numerical integration.
+
+### 2. Get Velocity Global Coordinate
+
+Run the global coordinate velocity node:
+
+```bash
+ros2 run ri_global_position vel_global_position
+```
+
+This node calculates and displays the velocity components along the global coordinate axes.
+
+Example log format:
+
+```text
+[LOGGER] DeltaTime: 0.10:
+VelX: 0.43 m/s, VelY: 0.25 m/s Omega: 0.10 rad/s
+```
+
+The values above are illustrative and do not represent measured output from a specific robot run.
+
+### 3. Enable Detailed Debugging
+
+In the node implementation, set:
+
+```python
+self.ShowMoreDebugInfo = True
+```
+
+This enables additional diagnostic logs for the variables covered by the debug statements in that implementation.
+
 ## Reference Images
 
-### Robot and Coordinate Reference
+![Robot coordinate reference](assets/papan.jpeg)
 
-![Robot coordinate reference](https://github.com/FabrickDev/ri_global_position/papan.jpeg)
-
-### Projector Reference
-
-![Projector reference](https://github.com/FabrickDev/ri_global_position/proyektor.jpeg)
-
-These images provide visual references for the robot setup and the associated coordinate or projection environment.
+![Projector reference](assets/proyektor.jpeg)
 
 ## Features
 
@@ -62,13 +97,9 @@ The global coordinate velocity node performs this transformation using the robot
 
 The resulting velocity vector is:
 
-\[
-\mathbf{v}_{global} =
-\begin{bmatrix}
-v_x\\
-v_y
-\end{bmatrix}
-\]
+```text
+V_global = [Vx, Vy]
+```
 
 Where:
 
@@ -95,9 +126,9 @@ This process converts body-frame forward motion into a global-frame velocity vec
 
 For a differential-drive robot with equal wheel radii, the forward linear velocity is calculated as:
 
-\[
-v = \frac{r}{2}(\omega_L+\omega_R)
-\]
+```text
+v = (r / 2) * (ωL + ωR)
+```
 
 Where:
 
@@ -105,35 +136,23 @@ Where:
 - \(\omega_L\): Left wheel angular velocity, in rad/s.
 - \(\omega_R\): Right wheel angular velocity, in rad/s.
 
-The current implementation uses:
-
-\[
-r = 0.03\ \text{m}
-\]
-
-Therefore:
-
-\[
-v = 0.015(\omega_L+\omega_R)
-\]
-
 This equation assumes that both wheel velocity inputs are angular velocities in rad/s.
 
 ### 2. Global X Velocity
 
 The robot's forward velocity is projected onto the global X-axis:
 
-\[
-\boxed{v_x=v\cos(\theta)}
-\]
+```text
+Vx = v * cos(θ)
+```
 
 ### 3. Global Y Velocity
 
 The robot's forward velocity is projected onto the global Y-axis:
 
-\[
-\boxed{v_y=v\sin(\theta)}
-\]
+```text
+Vy = v * sin(θ)
+```
 
 Together, these equations describe the transformation from forward linear velocity into global coordinate velocity.
 
@@ -141,46 +160,11 @@ Together, these equations describe the transformation from forward linear veloci
 
 The angular velocity is obtained from the angular Z component of the `/input_ik` topic:
 
-\[
-\omega=\texttt{msg.angular.z}
-\]
+```text
+ω = msg.angular.z
+```
 
 The unit is rad/s. This value describes the commanded or supplied angular velocity; it is not necessarily a measured physical angular velocity.
-
-### Example
-
-Suppose the robot has a forward linear velocity of \(0.5\ \text{m/s}\) and a heading angle of \(30^\circ\).
-
-Converting the heading to radians:
-
-\[
-\theta=30^\circ=\frac{\pi}{6}
-\]
-
-The global X velocity is:
-
-\[
-v_x=0.5\cos(30^\circ)\approx0.433\ \text{m/s}
-\]
-
-The global Y velocity is:
-
-\[
-v_y=0.5\sin(30^\circ)=0.250\ \text{m/s}
-\]
-
-The resulting global velocity vector is approximately:
-
-\[
-\mathbf{v}_{global}=
-\begin{bmatrix}
-0.433\\
-0.250
-\end{bmatrix}
-\text{m/s}
-\]
-
-This means the robot's motion has both X and Y components in the global coordinate frame.
 
 ## ROS 2 Topics
 
@@ -228,47 +212,6 @@ source install/setup.bash
 
 If the package has not yet been configured with its Python entry points, ensure that `setup.py` registers both executables: `global_position` and `vel_global_position`.
 
-## Usage
-
-### 1. Get Global Position
-
-Run the global position estimation node:
-
-```bash
-ros2 run ri_global_position global_position
-```
-
-This node estimates the robot's global position (`PosX`, `PosY`) and heading (`Tetha`) through numerical integration.
-
-### 2. Get Velocity Global Coordinate
-
-Run the global coordinate velocity node:
-
-```bash
-ros2 run ri_global_position vel_global_position
-```
-
-This node calculates and displays the velocity components along the global coordinate axes.
-
-Example log format:
-
-```text
-[LOGGER] DeltaTime: 0.10:
-VelX: 0.43 m/s, VelY: 0.25 m/s Omega: 0.10 rad/s
-```
-
-The values above are illustrative and do not represent measured output from a specific robot run.
-
-### 3. Enable Detailed Debugging
-
-In the node implementation, set:
-
-```python
-self.ShowMoreDebugInfo = True
-```
-
-This enables additional diagnostic logs for the variables covered by the debug statements in that implementation.
-
 ## Debugging
 
 Check whether the required topics are available:
@@ -303,7 +246,7 @@ If the output velocity remains zero or does not change as expected, verify that 
 ## Limitations
 
 - **Heading initialization:** The robot heading starts at zero. The velocity transformation requires a valid heading estimate relative to the global frame.
-- **Heading updates:** In the supplied velocity callback, `Tetha` is not updated. Unless another part of the implementation updates it, the heading remains zero, resulting in \(v_x=v\) and \(v_y=0\). To calculate global velocity during turns, update the heading using a reliable localization source or integrate angular velocity over time.
+- **Heading updates:** In the supplied velocity callback, `Tetha` is not updated. Unless another part of the implementation updates it, the heading remains zero, resulting in vx=v and vy=0. To calculate global velocity during turns, update the heading using a reliable localization source or integrate angular velocity over time.
 - **Odometry drift:** The global position estimate relies on wheel velocity and time integration. Errors in wheel measurements, wheel slip, and timing can accumulate.
 - **Command versus measurement:** The `/left_wheel/command` and `/right_wheel/command` topics may contain commanded wheel speeds rather than measured speeds. Actual motion estimation is more accurate when measured wheel velocities are available.
 - **Time initialization:** The first `DeltaTime` calculation in the supplied position implementation should be initialized carefully to prevent an abnormally large first integration interval.
